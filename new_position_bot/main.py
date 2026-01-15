@@ -68,9 +68,17 @@ def run_bot_logic():
                 continue
 
             logger.info(f"Analyzing {ticker}: title: {market.get('title')}, yes_ask: {market.get('yes_ask')}, no_ask: {market.get('no_ask')}")
-            
-            # 4. Consult Grok
-            recommendation = grok.analyze_market(market)
+
+            # 4. Fetch detailed market info including rules
+            try:
+                detailed_market = kalshi.get_market(ticker)
+                market_with_rules = {**market, **detailed_market}
+            except Exception as e:
+                logger.warning(f"Failed to fetch detailed market info for {ticker}: {e}. Proceeding without rules.")
+                market_with_rules = market
+
+            # 5. Consult Grok with market rules
+            recommendation = grok.analyze_market(market_with_rules)
             
             rec_ticker = recommendation.get("ticker")
             explanation = recommendation.get("explanation")

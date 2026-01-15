@@ -26,6 +26,24 @@ class GrokClient:
         )
 
 
+        # Build the rules section if rules are present
+        rules_primary = market_data.get('rules_primary', '')
+        rules_secondary = market_data.get('rules_secondary', '')
+        yes_sub_title = market_data.get('yes_sub_title', '')
+        no_sub_title = market_data.get('no_sub_title', '')
+
+        rules_section = ""
+        if rules_primary or rules_secondary or yes_sub_title or no_sub_title:
+            rules_section = "\n\nMarket Rules:"
+            if yes_sub_title:
+                rules_section += f"\nYes means: {yes_sub_title}"
+            if no_sub_title:
+                rules_section += f"\nNo means: {no_sub_title}"
+            if rules_primary:
+                rules_section += f"\n{rules_primary}"
+            if rules_secondary:
+                rules_section += f"\n{rules_secondary}"
+
         user_content = (
         f"Analyze this prediction market and decide whether to take a position on the Yes side, "
         f"the No side, or skip the trade.\n\n"
@@ -33,7 +51,8 @@ class GrokClient:
         f"Ticker: {market_data.get('ticker')}\n"
         f"Subtitle: {market_data.get('subtitle')}\n"
         f"Category: {market_data.get('category')}\n"
-        f"Current Yes Price: {market_data.get('yes_ask', 'N/A')}\n\n"
+        f"Current Yes Price: {market_data.get('yes_ask', 'N/A')}"
+        f"{rules_section}\n\n"
         "If you recommend a trade, return the ticker and which side to buy ('yes' or 'no'), "
         "with a short explanation. "
         "If you do NOT recommend a trade, return null for ticker and side, but still include an explanation.\n\n"

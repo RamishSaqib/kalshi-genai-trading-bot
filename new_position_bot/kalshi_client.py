@@ -55,6 +55,14 @@ class KalshiClient:
             logger.error(f"API Error: {e.response.text}")
             raise
 
+    def get_market(self, ticker: str) -> Dict:
+        """
+        Fetches detailed market information for a specific ticker.
+        Returns the market data including rules_primary, rules_secondary, yes_sub_title, no_sub_title.
+        """
+        data = self._request("GET", f"/markets/{ticker}")
+        return data.get("market", {})
+
     def get_active_markets(self, created_after_hours: int = 1) -> List[Dict]:
         """
         Fetches markets created in the last N hours that are currently active.

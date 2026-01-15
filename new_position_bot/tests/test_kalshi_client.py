@@ -168,3 +168,27 @@ def test_get_orders_returns_all_orders_when_no_identifier(mock_kalshi):
         orders = mock_kalshi.get_orders(bot_identifier=None)
 
         assert len(orders) == 2
+
+
+def test_get_market_returns_detailed_market_info(mock_kalshi):
+    """Test that get_market fetches detailed market info including rules."""
+    with patch.object(mock_kalshi, "_request") as mock_req:
+        mock_req.return_value = {
+            "market": {
+                "ticker": "TICKER-123",
+                "title": "Will X happen?",
+                "rules_primary": "The market resolves YES if X happens by Dec 31.",
+                "rules_secondary": "Settlement based on official announcement.",
+                "yes_sub_title": "X will happen",
+                "no_sub_title": "X will not happen",
+            }
+        }
+
+        market = mock_kalshi.get_market("TICKER-123")
+
+        mock_req.assert_called_with("GET", "/markets/TICKER-123")
+        assert market["ticker"] == "TICKER-123"
+        assert market["rules_primary"] == "The market resolves YES if X happens by Dec 31."
+        assert market["rules_secondary"] == "Settlement based on official announcement."
+        assert market["yes_sub_title"] == "X will happen"
+        assert market["no_sub_title"] == "X will not happen"
